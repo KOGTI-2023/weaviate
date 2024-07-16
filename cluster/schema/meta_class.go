@@ -179,7 +179,7 @@ func MergeProps(old, new []*models.Property) []*models.Property {
 		if oldIdx, exists := mem[strings.ToLower(new[idx].Name)]; !exists {
 			mergedProps = append(mergedProps, new[idx])
 		} else {
-			mergedProps[oldIdx].IndexRangeable = new[idx].IndexRangeable
+			mergedProps[oldIdx].IndexRangeFilters = new[idx].IndexRangeFilters
 
 			nestedProperties, merged := entSchema.MergeRecursivelyNestedProperties(
 				mergedProps[oldIdx].NestedProperties,

@@ -573,7 +573,7 @@ type IndexConfig struct {
 
 	TrackVectorDimensions bool
 
-	PropsToIndexRangeable map[string][]string
+	PropsToIndexRangeFilters map[string][]string
 }
 
 func indexID(class schema.ClassName) string {
