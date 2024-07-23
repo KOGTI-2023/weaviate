@@ -64,27 +64,6 @@ func (f *fakeSchemaManager) RestoreClass(ctx context.Context, d *backup.ClassDes
 	return nil
 }
 
-func (f *fakeSchemaManager) Nodes() []string {
-	return []string{"NOT SET"}
-}
-
-func (f *fakeSchemaManager) NodeName() string {
-	return ""
-}
-
-func (f *fakeSchemaManager) ClusterHealthScore() int {
-	return 0
-}
-
-func (f *fakeSchemaManager) Statistics() map[string]any {
-	return nil
-}
-
-func (f *fakeSchemaManager) ResolveParentNodes(_ string, shard string,
-) (map[string]string, error) {
-	return nil, nil
-}
-
 func (f *fakeSchemaManager) ShardFromUUID(class string, uuid []byte) string {
 	return ""
 }

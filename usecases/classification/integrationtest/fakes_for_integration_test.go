@@ -98,27 +98,6 @@ func (f *fakeSchemaGetter) ShardFromUUID(class string, uuid []byte) string {
 	return ss.Shard("", string(uuid))
 }
 
-func (f *fakeSchemaGetter) Nodes() []string {
-	return []string{"node1"}
-}
-
-func (m *fakeSchemaGetter) NodeName() string {
-	return "node1"
-}
-
-func (m *fakeSchemaGetter) ClusterHealthScore() int {
-	return 0
-}
-
-func (m *fakeSchemaGetter) Statistics() map[string]any {
-	return nil
-}
-
-func (m *fakeSchemaGetter) ResolveParentNodes(_ string, shard string,
-) (map[string]string, error) {
-	return nil, nil
-}
-
 func singleShardState() *sharding.State {
 	config, err := shardingConfig.ParseConfig(nil, 1)
 	if err != nil {

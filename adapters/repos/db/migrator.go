@@ -130,7 +130,7 @@ func (m *Migrator) AddClass(ctx context.Context, class *models.Class,
 		inverted.ConfigFromModel(class.InvertedIndexConfig),
 		convertToVectorIndexConfig(class.VectorIndexConfig),
 		convertToVectorIndexConfigs(class.VectorConfig),
-		m.db.schemaGetter, m.db, m.logger, m.db.nodeResolver, m.db.remoteIndex,
+		m.db.schemaGetter, m.db.cluster, m.db, m.logger, m.db.nodeResolver, m.db.remoteIndex,
 		m.db.replicaClient, m.db.promMetrics, class, m.db.jobQueueCh, m.db.indexCheckpoints,
 		m.db.memMonitor)
 	if err != nil {
@@ -226,7 +226,7 @@ func (m *Migrator) updateIndexAddTenants(ctx context.Context, idx *Index,
 ) error {
 	for shardName, phys := range incomingSS.Physical {
 		// Only load the tenant if activity status == HOT
-		if schemaUC.IsLocalActiveTenant(&phys, m.db.schemaGetter.NodeName()) {
+		if schemaUC.IsLocalActiveTenant(&phys, m.db.cluster.NodeName()) {
 			if err := idx.initLocalShard(ctx, shardName); err != nil {
 				return fmt.Errorf("add missing tenant shard %s during update index: %w", shardName, err)
 			}

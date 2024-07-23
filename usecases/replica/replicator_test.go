@@ -715,7 +715,7 @@ func (f fakeFactory) newReplicator() *Replicator {
 func (f fakeFactory) newFinder(thisNode string) *Finder {
 	nodeResolver := newFakeNodeResolver(f.Nodes)
 	resolver := &resolver{
-		Schema:       newFakeShardingState(thisNode, f.Shard2replicas, nodeResolver),
+		Cluster:      newFakeShardingState(thisNode, f.Shard2replicas, nodeResolver),
 		nodeResolver: nodeResolver,
 		Class:        f.CLS,
 		NodeName:     thisNode,

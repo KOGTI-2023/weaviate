@@ -57,6 +57,7 @@ import (
 	"github.com/weaviate/weaviate/entities/storagestate"
 	"github.com/weaviate/weaviate/entities/storobj"
 	esync "github.com/weaviate/weaviate/entities/sync"
+	"github.com/weaviate/weaviate/usecases/cluster"
 	"github.com/weaviate/weaviate/usecases/config"
 	"github.com/weaviate/weaviate/usecases/memwatch"
 	"github.com/weaviate/weaviate/usecases/modules"
@@ -165,6 +166,7 @@ type Index struct {
 	vectorIndexUserConfigLock sync.Mutex
 	vectorIndexUserConfigs    map[string]schemaConfig.VectorIndexConfig
 	getSchema                 schemaUC.SchemaGetter
+	cluster                   cluster.Reader
 	logger                    logrus.FieldLogger
 	remote                    *sharding.RemoteIndex
 	stopwords                 *stopwords.Detector
@@ -238,6 +240,7 @@ func NewIndex(ctx context.Context, cfg IndexConfig,
 	vectorIndexUserConfig schemaConfig.VectorIndexConfig,
 	vectorIndexUserConfigs map[string]schemaConfig.VectorIndexConfig,
 	sg schemaUC.SchemaGetter,
+	cluster cluster.Reader,
 	cs inverted.ClassSearcher, logger logrus.FieldLogger,
 	nodeResolver nodeResolver, remoteClient sharding.RemoteIndexClient,
 	replicaClient replica.Client,
@@ -250,8 +253,7 @@ func NewIndex(ctx context.Context, cfg IndexConfig,
 		return nil, errors.Wrap(err, "failed to create new index")
 	}
 
-	repl := replica.NewReplicator(cfg.ClassName.String(),
-		sg, nodeResolver, replicaClient, logger)
+	repl := replica.NewReplicator(cfg.ClassName.String(), cluster, nodeResolver, replicaClient, logger)
 
 	if cfg.QueryNestedRefLimit == 0 {
 		cfg.QueryNestedRefLimit = config.DefaultQueryNestedCrossReferenceLimit
@@ -260,6 +262,7 @@ func NewIndex(ctx context.Context, cfg IndexConfig,
 	index := &Index{
 		Config:                 cfg,
 		getSchema:              sg,
+		cluster:                cluster,
 		logger:                 logger,
 		classSearcher:          cs,
 		vectorIndexUserConfig:  vectorIndexUserConfig,
@@ -1388,7 +1391,7 @@ func (i *Index) objectSearchByShard(ctx context.Context, limit int, filters *fil
 					return fmt.Errorf(
 						"local shard object search %s: %w", shard.ID(), err)
 				}
-				nodeName = i.getSchema.NodeName()
+				nodeName = i.cluster.NodeName()
 
 			} else {
 
@@ -1584,7 +1587,7 @@ func (i *Index) objectVectorSearch(ctx context.Context, searchVectors [][]float3
 				}
 				// Append result to out
 				if i.replicationEnabled() {
-					storobj.AddOwnership(localShardResult, i.getSchema.NodeName(), shardName)
+					storobj.AddOwnership(localShardResult, i.cluster.NodeName(), shardName)
 				}
 				m.Lock()
 				out = append(out, localShardResult...)
@@ -1598,7 +1601,7 @@ func (i *Index) objectVectorSearch(ctx context.Context, searchVectors [][]float3
 					// Force a search on all the replicas for the shard
 					remoteSearchResults, err := i.remote.SearchAllReplicas(ctx,
 						i.logger, shardName, searchVectors, targetVectors, limit, filters,
-						nil, sort, nil, groupBy, additional, i.replicationEnabled(), i.getSchema.NodeName(), targetCombination, properties)
+						nil, sort, nil, groupBy, additional, i.replicationEnabled(), i.cluster.NodeName(), targetCombination, properties)
 					// Only return an error if we failed to query remote shards AND we had no local shard to query
 					if err != nil && shard == nil {
 						return errors.Wrapf(err, "remote shard %s", shardName)

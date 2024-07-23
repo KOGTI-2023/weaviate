@@ -56,11 +56,6 @@ type InvertedConfigValidator func(in *models.InvertedIndexConfig) error
 type SchemaGetter interface {
 	GetSchemaSkipAuth() schema.Schema
 	ReadOnlyClass(string) *models.Class
-	Nodes() []string
-	NodeName() string
-	ClusterHealthScore() int
-	ResolveParentNodes(string, string) (map[string]string, error)
-	Statistics() map[string]any
 
 	CopyShardingState(class string) *sharding.State
 	ShardOwner(class, shard string) (string, error)

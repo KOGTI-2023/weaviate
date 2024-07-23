@@ -42,7 +42,7 @@ func TestResolver(t *testing.T) {
 		nodeResolver: nr,
 		Class:        "C",
 		NodeName:     "A",
-		Schema:       newFakeShardingState("A", ss, nr),
+		Cluster:      newFakeShardingState("A", ss, nr),
 	}
 	t.Run("ShardingState", func(t *testing.T) {
 		_, err := r.State("Sx", One, "")
@@ -54,7 +54,7 @@ func TestResolver(t *testing.T) {
 			nodeResolver: nr,
 			Class:        "C",
 			NodeName:     "B",
-			Schema:       newFakeShardingState("B", ss, nr),
+			Cluster:      newFakeShardingState("B", ss, nr),
 		}
 		got, err := r.State("S1", All, "")
 		assert.Nil(t, err)

@@ -137,27 +137,6 @@ type fakeSchemaManager struct {
 	nodeResolver *nodeResolver
 }
 
-func (f *fakeSchemaManager) GetSchemaSkipAuth() schema.Schema {
-	return f.schema
-}
-
-func (f *fakeSchemaManager) ReadOnlyClass(class string) *models.Class {
-	return f.schema.GetClass(class)
-}
-
-func (f *fakeSchemaManager) ReadOnlyClassWithVersion(ctx context.Context, class string, version uint64,
-) (*models.Class, error) {
-	return f.schema.GetClass(class), nil
-}
-
-func (f *fakeSchemaManager) CopyShardingState(class string) *sharding.State {
-	return f.shardState
-}
-
-func (f *fakeSchemaManager) Statistics() map[string]any {
-	return nil
-}
-
 func (f *fakeSchemaManager) ShardOwner(class, shard string) (string, error) {
 	ss := f.shardState
 	x, ok := ss.Physical[shard]

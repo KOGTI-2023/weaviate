@@ -272,26 +272,6 @@ func (sg *fakeMigrationSchemaGetter) ReadOnlyClass(class string) *models.Class {
 	return sg.sch.GetClass(class)
 }
 
-func (sg *fakeMigrationSchemaGetter) Nodes() []string {
-	return nil
-}
-
-func (sg *fakeMigrationSchemaGetter) NodeName() string {
-	return ""
-}
-
-func (sg *fakeMigrationSchemaGetter) ClusterHealthScore() int {
-	return 0
-}
-
-func (sg *fakeMigrationSchemaGetter) ResolveParentNodes(string, string) (map[string]string, error) {
-	return nil, nil
-}
-
-func (sg *fakeMigrationSchemaGetter) Statistics() map[string]any {
-	return nil
-}
-
 func (sg *fakeMigrationSchemaGetter) CopyShardingState(class string) *sharding.State {
 	return sg.states[class]
 }

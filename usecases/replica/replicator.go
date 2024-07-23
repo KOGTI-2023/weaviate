@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/sirupsen/logrus"
 	"github.com/weaviate/weaviate/entities/storobj"
+	clusterPkg "github.com/weaviate/weaviate/usecases/cluster"
 	"github.com/weaviate/weaviate/usecases/objects"
 )
 
@@ -37,11 +38,6 @@ const (
 )
 
 type (
-	shardingState interface {
-		NodeName() string
-		ResolveParentNodes(class, shardName string) (map[string]string, error)
-	}
-
 	nodeResolver interface {
 		AllHostnames() []string // All node names for live members, including self
 		NodeHostname(nodeName string) (string, bool)
@@ -56,7 +52,7 @@ type (
 
 type Replicator struct {
 	class          string
-	stateGetter    shardingState
+	stateGetter    clusterPkg.Reader
 	client         Client
 	resolver       *resolver
 	log            logrus.FieldLogger
@@ -66,13 +62,13 @@ type Replicator struct {
 }
 
 func NewReplicator(className string,
-	stateGetter shardingState,
+	stateGetter clusterPkg.Reader,
 	nodeResolver nodeResolver,
 	client Client,
 	l logrus.FieldLogger,
 ) *Replicator {
 	resolver := &resolver{
-		Schema:       stateGetter,
+		Cluster:      stateGetter,
 		nodeResolver: nodeResolver,
 		Class:        className,
 		NodeName:     stateGetter.NodeName(),

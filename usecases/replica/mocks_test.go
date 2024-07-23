@@ -154,6 +154,16 @@ func (f *fakeShardingState) NodeName() string {
 	return f.thisNode
 }
 
+func (f *fakeShardingState) Nodes() []string {
+	return []string{}
+}
+func (f *fakeShardingState) ClusterHealthScore() int {
+	return 0
+}
+func (f *fakeShardingState) Statistics() map[string]any {
+	return map[string]any{}
+}
+
 func (f *fakeShardingState) ResolveParentNodes(_ string, shard string) (map[string]string, error) {
 	replicas, ok := f.ShardToReplicas[shard]
 	if !ok {

@@ -103,7 +103,7 @@ func (db *DB) init(ctx context.Context) error {
 				inverted.ConfigFromModel(invertedConfig),
 				convertToVectorIndexConfig(class.VectorIndexConfig),
 				convertToVectorIndexConfigs(class.VectorConfig),
-				db.schemaGetter, db, db.logger, db.nodeResolver, db.remoteIndex,
+				db.schemaGetter, db.cluster, db, db.logger, db.nodeResolver, db.remoteIndex,
 				db.replicaClient, db.promMetrics, class, db.jobQueueCh, db.indexCheckpoints,
 				db.memMonitor)
 			if err != nil {

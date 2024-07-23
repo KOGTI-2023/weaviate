@@ -25,10 +25,10 @@ import (
 
 // GetNodeStatus returns the status of all Weaviate nodes.
 func (db *DB) GetNodeStatus(ctx context.Context, className string, verbosity string) ([]*models.NodeStatus, error) {
-	nodeStatuses := make([]*models.NodeStatus, len(db.schemaGetter.Nodes()))
+	nodeStatuses := make([]*models.NodeStatus, len(db.cluster.Nodes()))
 	eg := enterrors.NewErrorGroupWrapper(db.logger)
 	eg.SetLimit(_NUMCPU)
-	for i, nodeName := range db.schemaGetter.Nodes() {
+	for i, nodeName := range db.cluster.Nodes() {
 		i, nodeName := i, nodeName
 		eg.Go(func() error {
 			status, err := db.getNodeStatus(ctx, nodeName, className, verbosity)
@@ -56,7 +56,7 @@ func (db *DB) GetNodeStatus(ctx context.Context, className string, verbosity str
 }
 
 func (db *DB) getNodeStatus(ctx context.Context, nodeName string, className, output string) (*models.NodeStatus, error) {
-	if db.schemaGetter.NodeName() == nodeName {
+	if db.cluster.NodeName() == nodeName {
 		return db.LocalNodeStatus(ctx, className, output), nil
 	}
 	status, err := db.remoteNode.GetNodeStatus(ctx, nodeName, className, output)
@@ -100,12 +100,12 @@ func (db *DB) LocalNodeStatus(ctx context.Context, className, output string) *mo
 	}
 
 	clusterHealthStatus := models.NodeStatusStatusHEALTHY
-	if db.schemaGetter.ClusterHealthScore() > 0 {
+	if db.cluster.ClusterHealthScore() > 0 {
 		clusterHealthStatus = models.NodeStatusStatusUNHEALTHY
 	}
 
 	status := models.NodeStatus{
-		Name:       db.schemaGetter.NodeName(),
+		Name:       db.cluster.NodeName(),
 		Version:    db.config.ServerVersion,
 		GitHash:    db.config.GitHash,
 		Status:     &clusterHealthStatus,
@@ -222,10 +222,10 @@ func (i *Index) getShardsNodeStatus(ctx context.Context,
 }
 
 func (db *DB) GetNodeStatistics(ctx context.Context) ([]*models.Statistics, error) {
-	nodeStatistics := make([]*models.Statistics, len(db.schemaGetter.Nodes()))
+	nodeStatistics := make([]*models.Statistics, len(db.cluster.Nodes()))
 	eg := enterrors.NewErrorGroupWrapper(db.logger)
 	eg.SetLimit(_NUMCPU)
-	for i, nodeName := range db.schemaGetter.Nodes() {
+	for i, nodeName := range db.cluster.Nodes() {
 		i, nodeName := i, nodeName
 		eg.Go(func() error {
 			statistics, err := db.getNodeStatistics(ctx, nodeName)
@@ -253,7 +253,7 @@ func (db *DB) IncomingGetNodeStatistics() (*models.Statistics, error) {
 }
 
 func (db *DB) localNodeStatistics() (*models.Statistics, error) {
-	stats := db.schemaGetter.Statistics()
+	stats := db.cluster.Statistics()
 	var raft *models.RaftStatistics
 	raftStats, ok := stats["raft"].(map[string]string)
 	if ok {
@@ -279,7 +279,7 @@ func (db *DB) localNodeStatistics() (*models.Statistics, error) {
 		}
 	}
 	status := models.StatisticsStatusHEALTHY
-	if db.schemaGetter.ClusterHealthScore() > 0 {
+	if db.cluster.ClusterHealthScore() > 0 {
 		status = models.StatisticsStatusUNHEALTHY
 	}
 	statistics := &models.Statistics{
@@ -300,7 +300,7 @@ func (db *DB) localNodeStatistics() (*models.Statistics, error) {
 }
 
 func (db *DB) getNodeStatistics(ctx context.Context, nodeName string) (*models.Statistics, error) {
-	if db.schemaGetter.NodeName() == nodeName {
+	if db.cluster.NodeName() == nodeName {
 		return db.localNodeStatistics()
 	}
 	statistics, err := db.remoteNode.GetStatistics(ctx, nodeName)

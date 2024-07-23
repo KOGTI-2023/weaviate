@@ -15,6 +15,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	clusterPkg "github.com/weaviate/weaviate/usecases/cluster"
 )
 
 // ConsistencyLevel is an enum of all possible consistency level
@@ -45,7 +46,7 @@ var (
 
 // resolver finds replicas and resolves theirs names
 type resolver struct {
-	Schema shardingState
+	Cluster clusterPkg.Reader
 	nodeResolver
 	Class    string
 	NodeName string
@@ -54,7 +55,7 @@ type resolver struct {
 // State returns replicas state
 func (r *resolver) State(shardName string, cl ConsistencyLevel, directCandidate string) (res rState, err error) {
 	res.CLevel = cl
-	m, err := r.Schema.ResolveParentNodes(r.Class, shardName)
+	m, err := r.Cluster.ResolveParentNodes(r.Class, shardName)
 	if err != nil {
 		return res, err
 	}

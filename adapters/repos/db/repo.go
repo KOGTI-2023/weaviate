@@ -30,6 +30,7 @@ import (
 	"github.com/weaviate/weaviate/entities/replication"
 	"github.com/weaviate/weaviate/entities/schema"
 	"github.com/weaviate/weaviate/entities/storobj"
+	"github.com/weaviate/weaviate/usecases/cluster"
 	"github.com/weaviate/weaviate/usecases/config"
 	"github.com/weaviate/weaviate/usecases/memwatch"
 	"github.com/weaviate/weaviate/usecases/monitoring"
@@ -41,6 +42,7 @@ import (
 type DB struct {
 	logger            logrus.FieldLogger
 	schemaGetter      schemaUC.SchemaGetter
+	cluster           cluster.Reader
 	config            Config
 	indices           map[string]*Index
 	remoteIndex       sharding.RemoteIndexClient
@@ -107,6 +109,10 @@ func (db *DB) GetRemoteIndex() sharding.RemoteIndexClient {
 
 func (db *DB) SetSchemaGetter(sg schemaUC.SchemaGetter) {
 	db.schemaGetter = sg
+}
+
+func (db *DB) SetClusterReader(r cluster.Reader) {
+	db.cluster = r
 }
 
 func (db *DB) WaitForStartup(ctx context.Context) error {

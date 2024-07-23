@@ -76,23 +76,6 @@ func (f *fakeSchemaGetter) Nodes() []string {
 	panic("not implemented")
 }
 
-func (f *fakeSchemaGetter) NodeName() string {
-	panic("not implemented")
-}
-
-func (f *fakeSchemaGetter) ClusterHealthScore() int {
-	panic("not implemented")
-}
-
-func (f *fakeSchemaGetter) ResolveParentNodes(string, string,
-) (map[string]string, error) {
-	panic("not implemented")
-}
-
-func (f *fakeSchemaGetter) Statistics() map[string]any {
-	panic("not implemented")
-}
-
 type fakeClassificationRepo struct {
 	sync.Mutex
 	db map[strfmt.UUID]models.Classification
