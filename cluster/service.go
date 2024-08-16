@@ -47,7 +47,7 @@ type Service struct {
 // Raft store will be initialized and ready to be started. To start the service call Open().
 func New(selector cluster.NodeSelector, cfg Config) *Service {
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.RPCPort)
-	cl := rpc.NewClient(resolver.NewRpc(cfg.IsLocalHost, cfg.RPCPort), cfg.RaftRPCMessageMaxSize, cfg.SentryEnabled)
+	cl := rpc.NewClient(resolver.NewRpc(cfg.IsLocalHost, cfg.RPCPort), cfg.RaftRPCMessageMaxSize, cfg.SentryEnabled, cfg.Logger)
 	fsm := NewFSM(cfg)
 	raft := NewRaft(selector, &fsm, cl)
 	return &Service{
@@ -113,9 +113,7 @@ func (c *Service) Close(ctx context.Context) error {
 	}
 
 	c.logger.Info("closing raft-rpc client ...")
-	if err := c.rpcClient.Close(); err != nil {
-		return err
-	}
+	c.rpcClient.Close()
 
 	c.logger.Info("closing raft-rpc server ...")
 	c.rpcServer.Close()
